@@ -260,13 +260,6 @@ echo Supprimer le script PowerShell temporaire
 del %TempScript%
 
 
-echo Demander à l'utilisateur s'il souhaite exécuter la défragmentation
-echo Voulez-vous exécuter la défragmentation des disques ? (o/n):
-set /p choice=
-if /i "%choice%"=="o" (
-    defrag /C
-)
-
 echo Nettoyage et optimisation terminés !
 pause
 endlocal
