@@ -1,10 +1,9 @@
 @echo off
 setlocal
 
-REM Définir le chemin du script PowerShell temporaire
+echo Creation du script PowerShell temporaire pour installer winget
 set TempScript=%TEMP%\temp_winget_install_script.ps1
 
-REM Créer le script PowerShell temporaire
 echo Set-ExecutionPolicy RemoteSigned -Scope Process -Force > %TempScript%
 echo $progressPreference = 'silentlyContinue' >> %TempScript%
 echo Write-Host "Installing WinGet PowerShell module from PSGallery..." >> %TempScript%
@@ -14,20 +13,19 @@ echo Write-Host "Using Repair-WinGetPackageManager cmdlet to bootstrap WinGet...
 echo Repair-WinGetPackageManager >> %TempScript%
 echo Write-Host "Done." >> %TempScript%
 
-REM Exécuter le script PowerShell temporaire
+echo Executer le script PowerShell temporaire
+
 powershell -ExecutionPolicy Bypass -File %TempScript%
 
-REM Supprimer le script PowerShell temporaire
+echo Supprimer le script PowerShell temporaire
 del %TempScript%
 
-REM Mise à jour des sources winget
 echo Mise à jour des sources winget...
 winget source update
 winget upgrade --id Microsoft.Winget.Client
 echo.
 
 
-REM Mise à jour des applications installées..
 echo Mise à jour des applications installees...
 winget upgrade --all --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
 echo
@@ -92,7 +90,6 @@ for %%a in (%apps%) do (
 )
 
 
-REM Installation et mise a jour du module Azure cloud Az
 echo Installation et mise a jour du module Azure cloud Az
 powershell -Command "Install-Module -Name Az -Repository PSGallery -Force"
 echo
@@ -100,7 +97,7 @@ powershell -Command "Update-Module -Name Az"
 echo 
 
 
-REM Installation .NET Framework 3.5
+echo Installation .NET Framework 3.5
 DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess
 powershell -Command "Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -like '*NetFx*' }"
 reg query "HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5" /s

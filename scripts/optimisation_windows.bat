@@ -1,14 +1,11 @@
 @echo off
 setlocal
 
-@echo off
 
-
-
-REM Définir la politique d'exécution de PowerShell pour permettre l'exécution de scripts
+echo Definir la politique d'execution de PowerShell pour permettre l'execution de scripts
 powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope Process -Force"
 
-REM Suppression de fichiers dans différents répertoires
+echo Suppression de fichiers dans différents répertoires
 del /F /Q "%USERPROFILE%\Downloads\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCache\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCookies\*.*" > nul 2>&1
@@ -21,19 +18,19 @@ del /S /F /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
 del /F /Q "%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.*" > nul 2>&1
 
 
-REM Vider le cache DNS
+echo Vider le cache DNS
 ipconfig /flushdns
 ipconfig /registerdns
 ipconfig /release
 ipconfig /renew
 
 
-REM Nettoyage des journaux systeme
+echo Nettoyage des journaux systeme
 wevtutil cl Application
 wevtutil cl System
 
 
-REM Arrêt de certains services
+echo Arret des services facultatifs
 net stop "DiagTrack"
 net stop "WSearch"
 net stop "dmwappushservice"
@@ -42,7 +39,7 @@ net stop "RemoteRegistry"
 net stop "Fax"
 
 
-REM Configuration des services
+echo Desactivation des services facultatifs
 sc config "DiagTrack" start= disabled
 sc config "SCardSvr" start= disabled
 sc config "WSearch" start= disabled
@@ -54,34 +51,34 @@ sc config "RemoteRegistry" start= disabled
 sc config WMPNetworkSvc start= disabled
 
 
-REM Configuration réseau
+echo Configuration réseau
 netsh winsock reset
 netsh int tcp set global autotuninglevel=disabled
 netsh int tcp set global dca=enabled
 netsh int tcp set global netdma=enabled
 netsh int tcp set global rss=enabled
 netsh int tcp set global chimney=disabled
-netsh int tcp set global congestionprovider=none
+netsh int tcp set supplemental template=internet congestionprovider=none
 
-REM Définir la MTU à 1500 octets
+echo Définir la MTU à 1500 octets
 netsh interface ipv4 set subinterface "Connexion au réseau local" mtu=1500 store=persistent
 
 
-REM Désactiver IPV6
+echo Désactiver IPV6
 netsh interface ipv6 set privacy disabled
 netsh interface teredo set state disabled
 
 
-REM Configurer le pare-feu Windows
+echo Configurer le pare-feu Windows
 netsh advfirewall set allprofiles state on
 
 
 
-REM Suppression du dossier Windows.old
+echo Suppression du dossier Windows.old
 rd /s /q "%Windir%\Windows.old"
 
 
-REM Modification du registre pour diverses optimisations et désactivations
+echo Modification du registre pour diverses optimisations et désactivations
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\InputPersonalization" /v RestrictImplicitTextCollection /t REG_DWORD /d 1 /f
@@ -116,22 +113,33 @@ reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\S
 reg add "HKLM\SOFTWARE\Microsoft\Windows Search\SetupCompletedSuccessfully" /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f
+reg add "HKCU\Control Panel\Desktop" /v ScreenSaveTimeOut /t REG_SZ /d 600 /f
+reg add "HKCU\Control Panel\Desktop" /v ScreenSaverIsSecure /t REG_SZ /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v AllowAdministratorLockout /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v NoLMHash /t REG_DWORD /d 1 /f
 
 
-REM Vérification des fichiers système
+echo Vérification des fichiers système
 sfc /scannow
 
 
-REM Mettre à jour les définitions de Windows Defender
+echo Mettre à jour les définitions de Windows Defender
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 
 
-REM Effectuer une analyse complète avec Windows Defender
+echo Effectuer une analyse complète avec Windows Defender
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 2
 
 
+echo definir les politiques de securite sur les comptes
+net accounts /lockoutduration:15
+net accounts /lockoutthreshold:5
+net accounts /lockoutwindow:15
+net user Guest /active:no
 
-REM Suppression de certains fichiers dans le répertoire Explorer
+
+
+echo Suppression de certains fichiers dans le répertoire Explorer
 start "" /b "cmd /c echo y | del /F /Q %USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.bak"
 start "" /b "cmd /c echo y | del /F /Q %USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.ini"
 start "" /b "cmd /c echo y | del /F /Q %USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.log"
@@ -140,13 +148,13 @@ start "" /b "cmd /c echo y | del /F /Q %USERPROFILE%\AppData\Local\Microsoft\Win
 start "" /b "cmd /c echo y | del /F /Q %USERPROFILE%\AppData\Local\Microsoft\Windows\INetCookies\*.*"
 
 
-REM Desactivation des fonctionnalites inutiles de Windows
+echo Desactivation des fonctionnalites inutiles de Windows
 
 dism /online /disable-feature /featurename:Internet-Explorer-Optional-amd64 /NoRestart
 dism /online /disable-feature /featurename:WindowsMediaPlayer /NoRestart
 
 
-REM Terminer certains processus
+echo Terminer certains processus
 taskkill /F /IM ASCTray.exe
 taskkill /F /IM CalculatorApp.exe
 taskkill /F /IM Code.exe
@@ -189,7 +197,7 @@ taskkill /F /IM gamingservices.exe
 
 
 
-REM Ajouter la disposition de clavier QWERTY des États-Unis 
+echo Ajouter la disposition de clavier QWERTY des États-Unis 
 Install-Language -Language en-US
 Set-WinUILanguageOverride -Language en-US
 Get-WinUserLanguageList
@@ -198,25 +206,25 @@ Set-WinUserLanguageList $LangList
 
 
 
-REM Recherche de mises à jour Windows Update
+echo Recherche de mises à jour Windows Update
 wuauclt /detectnow /updatenow
 wuauclt.exe /updatenow
 
-REM Mettre à jour les pilotes réseau
+echo Mettre à jour les pilotes réseau
 pnputil /scan-devices
 
 
-REM Installer et import du module PSWindowsUpdate
+echo Installer et import du module PSWindowsUpdate
 powershell -Command "Install-Module -Name PSWindowsUpdate -Force -SkipPublisherCheck"
 powershell -Command "Import-Module PSWindowsUpdate"
 
 
-REM Recherche et installation des mises à jour Windows
+echo Recherche et installation des mises à jour Windows
 powershell -Command "Get-WindowsUpdate -AcceptAll -IgnoreReboot"
 powershell -Command "Install-WindowsUpdate -AcceptAll -IgnoreReboot"
 
 
-REM Créer un fichier PowerShell temporaire pour mise à jour windows
+echo Créer un fichier PowerShell temporaire pour mise à jour windows
 set TempScript=%TEMP%\temp_update_script.ps1
 
 echo function Force-WindowsUpdates { > %TempScript%
@@ -244,47 +252,15 @@ echo } >> %TempScript%
 echo Force-WindowsUpdates >> %TempScript%
 
 
-REM Exécuter le script PowerShell temporaire
+echo Exécuter le script PowerShell temporaire
 powershell -ExecutionPolicy Bypass -File %TempScript%
 
 
-REM Supprimer le script PowerShell temporaire
+echo Supprimer le script PowerShell temporaire
 del %TempScript%
 
 
-
-@echo off
- enabledelayedexpansion
-
-REM Lister toutes les interfaces reseau Wi-Fi
-echo Recherche des interfaces reseau Wi-Fi...
-
-REM Boucle sur chaque interface Wi-Fi
-for /f "tokens=2 delims=:" %%G in ('netsh wlan show interfaces ^| findstr /r /c:"^ *GUID"') do (
-    set "interfaceGUID=%%G"
-    set "interfaceGUID=!interfaceGUID:~1!"
-    echo GUID trouve pour une interface Wi-Fi : !interfaceGUID!
-
-    REM Appliquer les paramètres TcpAckFrequency et TcpNoDelay
-    echo Application des paramètres TcpAckFrequency et TcpNoDelay pour interface : !interfaceGUID!...
-    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{!interfaceGUID!}" /v TcpAckFrequency /t REG_DWORD /d 1 /f >nul
-    if %errorlevel% neq 0 (
-        echo Échec de la configuration de TcpAckFrequency pour interface : !interfaceGUID!.
-    ) else (
-        echo TcpAckFrequency configure avec succes pour interface : !interfaceGUID!.
-    )
-    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{!interfaceGUID!}" /v TcpNoDelay /t REG_DWORD /d 1 /f >nul
-    if %errorlevel% neq 0 (
-        echo Échec de la configuration de TcpNoDelay pour interface : !interfaceGUID!.
-    ) else (
-        echo TcpNoDelay configure avec succes pour interface : !interfaceGUID!.
-    )
-)
-
-echo Configuration des interfaces reseau Wi-Fi terminee.
-
-
-REM Demander à l'utilisateur s'il souhaite exécuter la défragmentation
+echo Demander à l'utilisateur s'il souhaite exécuter la défragmentation
 echo Voulez-vous exécuter la défragmentation des disques ? (o/n):
 set /p choice=
 if /i "%choice%"=="o" (
@@ -293,5 +269,4 @@ if /i "%choice%"=="o" (
 
 echo Nettoyage et optimisation terminés !
 pause
-
 endlocal
