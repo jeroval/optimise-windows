@@ -1,6 +1,9 @@
 @echo off
 setlocal
 
+@echo off
+
+
 
 REM Définir la politique d'exécution de PowerShell pour permettre l'exécution de scripts
 powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope Process -Force"
@@ -48,7 +51,7 @@ sc config "dmwappushservice" start= disabled
 sc config "Fax" start= disabled
 sc config "Spooler" start= disabled
 sc config "RemoteRegistry" start= disabled
-sc config "WMPNetworkSvc" start= disabled
+sc config WMPNetworkSvc start= disabled
 
 
 REM Configuration réseau
@@ -57,7 +60,8 @@ netsh int tcp set global autotuninglevel=disabled
 netsh int tcp set global dca=enabled
 netsh int tcp set global netdma=enabled
 netsh int tcp set global rss=enabled
-netsh int tcp set supplemental template=internet congestionprovider=none
+netsh int tcp set global chimney=disabled
+netsh int tcp set global congestionprovider=none
 
 REM Définir la MTU à 1500 octets
 netsh interface ipv4 set subinterface "Connexion au réseau local" mtu=1500 store=persistent
@@ -248,6 +252,40 @@ REM Supprimer le script PowerShell temporaire
 del %TempScript%
 
 
+
+@echo off
+ enabledelayedexpansion
+
+REM Lister toutes les interfaces reseau Wi-Fi
+echo Recherche des interfaces reseau Wi-Fi...
+
+REM Boucle sur chaque interface Wi-Fi
+for /f "tokens=2 delims=:" %%G in ('netsh wlan show interfaces ^| findstr /r /c:"^ *GUID"') do (
+    set "interfaceGUID=%%G"
+    set "interfaceGUID=!interfaceGUID:~1!"
+    echo GUID trouve pour une interface Wi-Fi : !interfaceGUID!
+
+    REM Appliquer les paramètres TcpAckFrequency et TcpNoDelay
+    echo Application des paramètres TcpAckFrequency et TcpNoDelay pour interface : !interfaceGUID!...
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{!interfaceGUID!}" /v TcpAckFrequency /t REG_DWORD /d 1 /f >nul
+    if %errorlevel% neq 0 (
+        echo Échec de la configuration de TcpAckFrequency pour interface : !interfaceGUID!.
+    ) else (
+        echo TcpAckFrequency configure avec succes pour interface : !interfaceGUID!.
+    )
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{!interfaceGUID!}" /v TcpNoDelay /t REG_DWORD /d 1 /f >nul
+    if %errorlevel% neq 0 (
+        echo Échec de la configuration de TcpNoDelay pour interface : !interfaceGUID!.
+    ) else (
+        echo TcpNoDelay configure avec succes pour interface : !interfaceGUID!.
+    )
+)
+
+echo Configuration des interfaces reseau Wi-Fi terminee.
+pause
+
+
+
 REM Demander à l'utilisateur s'il souhaite exécuter la défragmentation
 echo Voulez-vous exécuter la défragmentation des disques ? (o/n):
 set /p choice=
@@ -257,4 +295,5 @@ if /i "%choice%"=="o" (
 
 echo Nettoyage et optimisation terminés !
 pause
+
 endlocal
