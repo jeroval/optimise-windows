@@ -282,8 +282,6 @@ for /f "tokens=2 delims=:" %%G in ('netsh wlan show interfaces ^| findstr /r /c:
 )
 
 echo Configuration des interfaces reseau Wi-Fi terminee.
-pause
-
 
 
 REM Demander à l'utilisateur s'il souhaite exécuter la défragmentation
