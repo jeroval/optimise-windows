@@ -75,7 +75,8 @@ echo Configuration réseau
 echo _____________________________________________________________________________________________________________
 
 netsh winsock reset
-netsh int tcp set global autotuninglevel=disabled
+netsh int tcp reset
+netsh int tcp set global autotuninglevel=normal
 netsh int tcp set global dca=enabled
 netsh int tcp set global netdma=enabled
 netsh int tcp set global rss=enabled
@@ -89,7 +90,7 @@ echo ___________________________________________________________________________
 
 for /f "tokens=1-4*" %%A in ('netsh interface show interface ^| findstr /I "Wi-Fi"') do (
     echo Modification de l'interface Wi-Fi : %%E
-    netsh interface ipv4 set subinterface "%%E" mtu=1400 store=persistent
+    netsh interface ipv4 set subinterface "%%E" mtu=1500 store=persistent
     if %errorlevel%==0 (
         echo MTU configuré avec succès pour "%%E".
     ) else (
