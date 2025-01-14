@@ -105,6 +105,10 @@ powershell -Command "Update-Module -Name PSPKI"
 echo 
 
 
+echo Installation de openssh
+powershell -Command "Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0"
+echo
+
 
 echo Installation .NET Framework 3.5
 DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess
