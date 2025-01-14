@@ -78,6 +78,7 @@ Google.CloudSDK ^
 IDRIX.VeraCrypt ^
 Famatech.AdvancedIPScanner ^
 Logitech.GHUB ^
+ShiningLight.OpenSSL.Light ^
 Piriform.CCleaner
 
 REM Boucle d'installation pour chaque application
@@ -95,6 +96,14 @@ powershell -Command "Install-Module -Name Az -Repository PSGallery -Force"
 echo
 powershell -Command "Update-Module -Name Az"
 echo 
+
+
+echo Installation et mise a jour du module OpenSSL
+powershell -Command "Install-Module -Name PSPKI -Scope CurrentUser -Force"
+echo
+powershell -Command "Update-Module -Name PSPKI"
+echo 
+
 
 
 echo Installation .NET Framework 3.5
