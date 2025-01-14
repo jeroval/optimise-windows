@@ -105,8 +105,9 @@ powershell -Command "Update-Module -Name PSPKI"
 echo 
 
 
-echo Installation de openssh
-powershell -Command "Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0"
+echo Installation et vérification de openssh client
+powershell -Command "Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0 -Force"
+powershell -Command "Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'"
 echo
 
 
