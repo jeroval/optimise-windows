@@ -117,6 +117,13 @@ DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess
 powershell -Command "Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -like '*NetFx*' }"
 reg query "HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5" /s
 DISM /Online /Get-Features | findstr "NetFx"
+echo
+
+
+echo Variables d'environnements
+echo Variables d'environnements NMAP
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files (x86)\Nmap", [EnvironmentVariableTarget]::Machine)
+echo
 
 
 
