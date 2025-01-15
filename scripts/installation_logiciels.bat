@@ -79,6 +79,7 @@ IDRIX.VeraCrypt ^
 Famatech.AdvancedIPScanner ^
 Logitech.GHUB ^
 ShiningLight.OpenSSL.Light ^
+Insecure.Nmap 7.8 ^
 Piriform.CCleaner
 
 REM Boucle d'installation pour chaque application
