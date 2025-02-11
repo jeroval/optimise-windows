@@ -16,16 +16,24 @@ echo ___________________________________________________________________________
 del /F /Q "%USERPROFILE%\Downloads\*.*" > nul 2>&1
 del /F /Q "%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.*" > nul 2>&1
 del /F /S /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.db" > nul 2>&1
+del /F /S /Q "C:\ProgramData\Microsoft\Diagnosis\*.rbs" > nul 2>&1
+del /F /S /Q "C:\ProgramData\Microsoft\Diagnosis\*.rbs.bak" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Store\*.*"
+del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Store\*.*" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Windows\WER\*.*" > nul 2>&1
 del /F /S /Q "C:\Users\%USERNAME%\AppData\Local\Temp\*.*"
 del /F /S /Q "C:\Windows\Logs\*.*"
+del /F /S /Q "C:\Windows\MEMORY.DMP" > nul 2>&1
+del /F /S /Q "C:\Windows\Minidump\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\Prefetch\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\Logs\*.*"
+del /F /S /Q "C:\Windows\SysWOW64\LogFiles\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\System32\DriverStore\FileRepository\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\System32\LogFiles\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\System32\SleepStudy\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\System32\logfiles\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\Temp\*.*"
+del /F /S /Q "C:\Windows\Temp\*.*" > nul 2>&1
 del /S /F /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCache\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCookies\*.*" > nul 2>&1
@@ -34,7 +42,6 @@ del /S /F /Q "%Windir%\SoftwareDistribution\Download\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\SoftwareDistribution\Logs\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\Temp\*.*" > nul 2>&1
 del /S /F /Q "%temp%\*.*" > nul 2>&1
-
 echo _____________________________________________________________________________________________________________
 echo Vider le cache DNS
 echo _____________________________________________________________________________________________________________
@@ -70,10 +77,25 @@ Compact.exe /CompactOS:always
 
 
 echo _____________________________________________________________________________________________________________
+echo Suppression des anciens pilotes inutilisés
+echo _____________________________________________________________________________________________________________
+
+
+
+
+echo _____________________________________________________________________________________________________________
 echo Suppression des anciennes mises à jour Windows
 echo _____________________________________________________________________________________________________________
 
 dism /online /Cleanup-Image /StartComponentCleanup /ResetBase
+dism /online /Cleanup-Image /AnalyzeComponentStore
+
+
+echo _____________________________________________________________________________________________________________
+echo Suppression du dossier Windows.old
+echo _____________________________________________________________________________________________________________
+
+rd /s /q "%Windir%\Windows.old"
 
 
 echo _____________________________________________________________________________________________________________
@@ -172,17 +194,17 @@ echo ___________________________________________________________________________
 netsh advfirewall set allprofiles state on
 
 
-echo _____________________________________________________________________________________________________________
-echo Suppression du dossier Windows.old
-echo _____________________________________________________________________________________________________________
-
-rd /s /q "%Windir%\Windows.old"
-
 
 echo _____________________________________________________________________________________________________________
 echo Modification du registre pour diverses optimisations et désactivations
 echo _____________________________________________________________________________________________________________
 
+reg add "HKCU\Control Panel\Desktop" /v ScreenSaveTimeOut /t REG_SZ /d 600 /f
+reg add "HKCU\Control Panel\Desktop" /v ScreenSaverIsSecure /t REG_SZ /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 01 /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 08 /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 32 /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 0 /f
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\InputPersonalization" /v RestrictImplicitTextCollection /t REG_DWORD /d 1 /f
@@ -190,6 +212,7 @@ reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Input\TIPC" /v DataCollectionPolic
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Input\TIPC" /v Enabled /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Siuf\Rules" /v NumberOfSIUFInPeriod /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v IconsOnly /t REG_DWORD /d 1 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewShadow /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
@@ -205,6 +228,8 @@ reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Vi
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ToolTipFade" /v DefaultValue /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\UIEffects" /v DefaultValue /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v DODownloadMode /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v Disabled /t REG_DWORD /d 1 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
@@ -215,17 +240,9 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimiza
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Psched" /v NonBestEffortLimit /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Search\SetupCompletedSuccessfully" /t REG_DWORD /d 0 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f
-reg add "HKCU\Control Panel\Desktop" /v ScreenSaveTimeOut /t REG_SZ /d 600 /f
-reg add "HKCU\Control Panel\Desktop" /v ScreenSaverIsSecure /t REG_SZ /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 0 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v AllowAdministratorLockout /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v NoLMHash /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 01 /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 08 /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 32 /t REG_DWORD /d 1 /f
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 0 /f
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v IconsOnly /t REG_DWORD /d 1 /f
 
 
 echo _____________________________________________________________________________________________________________
@@ -401,7 +418,6 @@ echo Mettre à jour les pilotes réseau
 echo _____________________________________________________________________________________________________________
 
 pnputil /scan-devices
-
 
 echo _____________________________________________________________________________________________________________
 echo Installer et import du module PSWindowsUpdate
