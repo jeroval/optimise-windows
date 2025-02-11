@@ -13,28 +13,24 @@ echo ___________________________________________________________________________
 echo Suppression de fichiers dans différents répertoires
 echo _____________________________________________________________________________________________________________
 
+
 del /F /Q "%USERPROFILE%\Downloads\*.*" > nul 2>&1
 del /F /Q "%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.*" > nul 2>&1
 del /F /S /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.db" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Diagnosis\*.rbs" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Diagnosis\*.rbs.bak" > nul 2>&1
-del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Store\*.*"
+del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Definition Updates\Backup\*.*" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Store\*.*" > nul 2>&1
 del /F /S /Q "C:\ProgramData\Microsoft\Windows\WER\*.*" > nul 2>&1
-del /F /S /Q "C:\Users\%USERNAME%\AppData\Local\Temp\*.*"
-del /F /S /Q "C:\Windows\Logs\*.*"
+del /F /S /Q "C:\Users\%USERNAME%\AppData\Local\Temp\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\Logs\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\MEMORY.DMP" > nul 2>&1
 del /F /S /Q "C:\Windows\Minidump\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\Prefetch\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\Logs\*.*"
+del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\Logs\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\SysWOW64\LogFiles\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\System32\DriverStore\FileRepository\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\System32\LogFiles\*.*" > nul 2>&1
 del /F /S /Q "C:\Windows\System32\SleepStudy\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\System32\logfiles\*.*" > nul 2>&1
-del /F /S /Q "C:\Windows\Temp\*.*" > nul 2>&1
-del /S /F /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
+del /F /S /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCache\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCookies\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\PerfLogs\*.*" > nul 2>&1
@@ -42,6 +38,19 @@ del /S /F /Q "%Windir%\SoftwareDistribution\Download\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\SoftwareDistribution\Logs\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\Temp\*.*" > nul 2>&1
 del /S /F /Q "%temp%\*.*" > nul 2>&1
+
+
+rd /s /q "C:\Windows\Logs\CBS"
+rd /s /q "C:\Windows\Panther"
+rd /s /q "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Temp"
+rd /s /q "C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Temp"
+rd /s /q "C:\Windows\System32\LogFiles"
+rd /s /q "C:\Windows\System32\wbem\Logs"
+rd /s /q "C:\Windows\Temp"
+rd /s /q "C:\Windows\WinSxS\Temp\PendingDeletes"
+rd /s /q "C:\Windows\WinSxS\Temp\PendingRenames"
+
+
 echo _____________________________________________________________________________________________________________
 echo Vider le cache DNS
 echo _____________________________________________________________________________________________________________
@@ -82,6 +91,23 @@ echo ___________________________________________________________________________
 
 dism /online /Cleanup-Image /StartComponentCleanup /ResetBase
 dism /online /Cleanup-Image /AnalyzeComponentStore
+dism /online /Cleanup-Image /SPSuperseded
+
+
+echo _____________________________________________________________________________________________________________
+echo Réduire le cache de Windows Update
+echo _____________________________________________________________________________________________________________
+
+net stop wuauserv
+rd /s /q C:\Windows\SoftwareDistribution
+net start wuauserv
+
+
+echo _____________________________________________________________________________________________________________
+echo Supprimer les fichiers d’installation des mises à jour Windows
+echo _____________________________________________________________________________________________________________
+
+cleanmgr /verylowdisk
 
 
 echo _____________________________________________________________________________________________________________
