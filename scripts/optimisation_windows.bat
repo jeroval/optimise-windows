@@ -14,6 +14,19 @@ echo Suppression de fichiers dans différents répertoires
 echo _____________________________________________________________________________________________________________
 
 del /F /Q "%USERPROFILE%\Downloads\*.*" > nul 2>&1
+del /F /Q "%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.*" > nul 2>&1
+del /F /S /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\*.db" > nul 2>&1
+del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Store\*.*"
+del /F /S /Q "C:\ProgramData\Microsoft\Windows\WER\*.*" > nul 2>&1
+del /F /S /Q "C:\Users\%USERNAME%\AppData\Local\Temp\*.*"
+del /F /S /Q "C:\Windows\Logs\*.*"
+del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\SoftwareDistribution\DataStore\Logs\*.*"
+del /F /S /Q "C:\Windows\System32\DriverStore\FileRepository\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\System32\SleepStudy\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\System32\logfiles\*.*" > nul 2>&1
+del /F /S /Q "C:\Windows\Temp\*.*"
+del /S /F /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCache\*.*" > nul 2>&1
 del /S /F /Q "%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCookies\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\PerfLogs\*.*" > nul 2>&1
@@ -21,9 +34,6 @@ del /S /F /Q "%Windir%\SoftwareDistribution\Download\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\SoftwareDistribution\Logs\*.*" > nul 2>&1
 del /S /F /Q "%Windir%\Temp\*.*" > nul 2>&1
 del /S /F /Q "%temp%\*.*" > nul 2>&1
-del /S /F /Q "%SystemRoot%\Prefetch\*.*" > nul 2>&1
-del /F /Q "%windir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.*" > nul 2>&1
-
 
 echo _____________________________________________________________________________________________________________
 echo Vider le cache DNS
@@ -44,8 +54,56 @@ wevtutil cl System
 
 
 echo _____________________________________________________________________________________________________________
+echo Nettoyage du cache Windows Defender
+echo _____________________________________________________________________________________________________________
+
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -removedefinitions -dynamicsignatures
+del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\*.*"
+
+
+
+echo _____________________________________________________________________________________________________________
+echo Compression des fichiers système
+echo _____________________________________________________________________________________________________________
+
+Compact.exe /CompactOS:always
+
+
+echo _____________________________________________________________________________________________________________
+echo Suppression des anciennes mises à jour Windows
+echo _____________________________________________________________________________________________________________
+
+dism /online /Cleanup-Image /StartComponentCleanup /ResetBase
+
+
+echo _____________________________________________________________________________________________________________
+echo Désactiver et vider le fichier d’hibernation gain de 2 à 5 Go
+echo _____________________________________________________________________________________________________________
+
+powercfg -h off
+
+
+echo _____________________________________________________________________________________________________________
+echo Désactiver complètement le fichier d’échange SWAP
+echo _____________________________________________________________________________________________________________
+
+wmic pagefileset where name="C:\\pagefile.sys" delete
+
+
+echo _____________________________________________________________________________________________________________
+echo Supprimer et désactiver les points de restaurations
+echo _____________________________________________________________________________________________________________
+
+vssadmin delete shadows /all /quiet
+Disable-ComputerRestore -Drive "C:\"
+
+
+
+
+echo _____________________________________________________________________________________________________________
 echo Arret des services facultatifs
 echo _____________________________________________________________________________________________________________
+
 
 net stop "DiagTrack"
 net stop "WSearch"
@@ -163,7 +221,65 @@ reg add "HKCU\Control Panel\Desktop" /v ScreenSaveTimeOut /t REG_SZ /d 600 /f
 reg add "HKCU\Control Panel\Desktop" /v ScreenSaverIsSecure /t REG_SZ /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v AllowAdministratorLockout /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v NoLMHash /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 01 /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 08 /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 32 /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 0 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v IconsOnly /t REG_DWORD /d 1 /f
 
+
+echo _____________________________________________________________________________________________________________
+echo Suppression des packages inutiles
+echo _____________________________________________________________________________________________________________
+
+REM powershell -Command "Get-AppxPackage *MicrosoftTeams* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *Office* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *OneNote* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *Windows.Photos* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsAlarms* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsCalculator* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsCamera* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsMail* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsTerminal* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *XboxGameOverlay* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *XboxGamingOverlay* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *XboxSpeechToTextOverlay* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *3DBuilder* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Clipchamp* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Disney* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Facebook* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *GetHelp* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Getstarted* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *HEIFImageExtension* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *LinkedIn* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *MSNWeather* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Messaging* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *MicrosoftAdvertising* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *MixedReality* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Netflix* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *News* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Paint3D* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Spotify* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *StickyNotes* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Skype* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *TikTok* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Twitter* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *VP9VideoExtensions* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Wallet* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Weather* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WebExperience* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WebpImageExtension* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Widgets* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WindowsFeedbackHub* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WindowsMaps* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WindowsSoundRecorder* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WindowsStore* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *YourPhone* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *ZuneMusic* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *ZuneVideo* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *FeedbackHub* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *BingNews* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *WindowsPeople* | Remove-AppxPackage"
 
 echo _____________________________________________________________________________________________________________
 echo Vérification des fichiers système
