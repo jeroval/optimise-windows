@@ -432,6 +432,7 @@ taskkill /F /IM Xbox*
 taskkill /F /IM gamingservices.exe
 taskkill /F /IM CCleaner64.exe
 taskkill /F /IM jabra-direct.exe
+taskkill /F /IM jimsctadn.exe
 
 echo _____________________________________________________________________________________________________________
 echo Ajouter la disposition de clavier QWERTY des États-Unis 
