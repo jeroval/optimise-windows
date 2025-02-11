@@ -440,6 +440,7 @@ powershell -Command "Get-WinUserLanguageList"
 powershell -Command "$LangList = New-WinUserLanguageList en-US"
 powershell -Command "Set-WinUserLanguageList $LangList"
 
+
 echo _____________________________________________________________________________________________________________
 echo Recherche de mises à jour Windows Update
 echo _____________________________________________________________________________________________________________
