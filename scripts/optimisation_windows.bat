@@ -430,6 +430,7 @@ taskkill /F /IM wargamingerrormonitor.exe
 taskkill /F /IM wgc.exe
 taskkill /F /IM Xbox*
 taskkill /F /IM gamingservices.exe
+taskkill /F /IM CCleaner64.exe
 
 
 echo _____________________________________________________________________________________________________________
