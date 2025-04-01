@@ -40,15 +40,16 @@ del /S /F /Q "%Windir%\Temp\*.*" > nul 2>&1
 del /S /F /Q "%temp%\*.*" > nul 2>&1
 
 
-rd /s /q "C:\Windows\Logs\CBS"
 rd /s /q "C:\Windows\Panther"
 rd /s /q "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Temp"
 rd /s /q "C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Temp"
-rd /s /q "C:\Windows\System32\LogFiles"
 rd /s /q "C:\Windows\System32\wbem\Logs"
 rd /s /q "C:\Windows\Temp"
 rd /s /q "C:\Windows\WinSxS\Temp\PendingDeletes"
 rd /s /q "C:\Windows\WinSxS\Temp\PendingRenames"
+
+
+forfiles /p "%TEMP%" /s /m *.* /d -7 /c "cmd /c del /q @file"
 
 
 echo _____________________________________________________________________________________________________________
@@ -76,6 +77,7 @@ echo ___________________________________________________________________________
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -removedefinitions -dynamicsignatures
 del /F /S /Q "C:\ProgramData\Microsoft\Windows Defender\Scans\*.*"
 
+
 echo _____________________________________________________________________________________________________________
 echo Compression des fichiers système
 echo _____________________________________________________________________________________________________________
@@ -90,15 +92,6 @@ echo ___________________________________________________________________________
 dism /online /Cleanup-Image /StartComponentCleanup /ResetBase
 dism /online /Cleanup-Image /AnalyzeComponentStore
 dism /online /Cleanup-Image /SPSuperseded
-
-
-echo _____________________________________________________________________________________________________________
-echo Réduire le cache de Windows Update
-echo _____________________________________________________________________________________________________________
-
-net stop wuauserv
-rd /s /q C:\Windows\SoftwareDistribution
-net start wuauserv
 
 
 echo _____________________________________________________________________________________________________________
@@ -163,8 +156,6 @@ sc config "Fax" start= disabled
 sc config "RemoteRegistry" start= disabled
 sc config "RetailDemo" start= disabled
 sc config "SCardSvr" start= disabled
-sc config "Spooler" start= disabled
-sc config "SysMain" start= disabled
 sc config "TabletInputService" start= disabled
 sc config "WMPNetworkSvc" start= disabled
 sc config "WSearch" start= disabled
@@ -210,14 +201,6 @@ for /f "tokens=1-4*" %%A in ('netsh interface show interface ^| findstr /I "Wi-F
         echo Erreur lors de la configuration pour "%%E".
     )
 )
-
-
-echo _____________________________________________________________________________________________________________
-echo Désactiver IPV6
-echo _____________________________________________________________________________________________________________
-
-netsh interface ipv6 set privacy disabled
-netsh interface teredo set state disabled
 
 
 echo _____________________________________________________________________________________________________________
@@ -291,11 +274,9 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DiagTrack" /v Star
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\dmwappushservice" /v Start /t REG_DWORD /d 4 /f
 reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Search\SetupCompletedSuccessfully" /t REG_DWORD /d 0 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 0 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v AllowAdministratorLockout /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v NoLMHash /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive" /v AdditionalCriticalWorkerThreads /t REG_DWORD /d 4 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v SecondLevelDataCache /t REG_DWORD /d 512 /f
 
 
 echo _____________________________________________________________________________________________________________
@@ -314,6 +295,7 @@ REM powershell -Command "Get-AppxPackage *WindowsTerminal* | Remove-AppxPackage"
 REM powershell -Command "Get-AppxPackage *XboxGameOverlay* | Remove-AppxPackage"
 REM powershell -Command "Get-AppxPackage *XboxGamingOverlay* | Remove-AppxPackage"
 REM powershell -Command "Get-AppxPackage *XboxSpeechToTextOverlay* | Remove-AppxPackage"
+REM powershell -Command "Get-AppxPackage *WindowsStore* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *3DBuilder* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *Clipchamp* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *Disney* | Remove-AppxPackage"
@@ -343,7 +325,6 @@ powershell -Command "Get-AppxPackage *Widgets* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *WindowsFeedbackHub* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *WindowsMaps* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *WindowsSoundRecorder* | Remove-AppxPackage"
-powershell -Command "Get-AppxPackage *WindowsStore* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *YourPhone* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *ZuneMusic* | Remove-AppxPackage"
 powershell -Command "Get-AppxPackage *ZuneVideo* | Remove-AppxPackage"
